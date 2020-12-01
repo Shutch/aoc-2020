@@ -9,6 +9,7 @@ pytest = "*"
 beautifulsoup4 = "*"
 requests = "*"
 pre-commit = "*"
+click = "*"
 
 [dev-packages]
 
