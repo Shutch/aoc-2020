@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-black = "*"
 mypy = "*"
 pytest = "*"
 beautifulsoup4 = "*"
@@ -15,6 +14,3 @@ pre-commit = "*"
 
 [requires]
 python_version = "3.8"
-
-[pipenv]
-allow_prereleases = true
