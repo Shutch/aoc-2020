@@ -33,11 +33,11 @@ def submit_answer(day_number: int, answer: int) -> None:
     # "That's not the right answer"
 
 
-def get_input(day_number: int) -> str:
+def get_input(day_number: int) -> List[str]:
     cookie = secrets.cookie
     url: str = base_url + str(day_number) + input_suffix
     r = requests.get(url, cookies=cookie)
-    return r.text
+    return r.text.split()
 
 
 def get_answer_response(day_number: int) -> None:
