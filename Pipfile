@@ -10,7 +10,6 @@ beautifulsoup4 = "*"
 requests = "*"
 pre-commit = "*"
 click = "*"
-neovim = "*"
 flake8 = "*"
 
 [dev-packages]

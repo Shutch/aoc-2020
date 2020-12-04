@@ -25,9 +25,10 @@ def prompt(day: int) -> None:
 
 @main.command()
 @click.argument("day", type=int)
+@click.argument("part", type=int)
 @click.argument("answer", type=int)
-def answer(day: int, answer: int) -> None:
-    resp: bool = aoc.submit_answer(day, answer)
+def answer(day: int, part: int, answer: int) -> None:
+    resp: bool = aoc.submit_answer(day, part, answer)
     if resp:
         print("Right answer")
     else:

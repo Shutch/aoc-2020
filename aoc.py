@@ -5,7 +5,7 @@ import bs4  # type:ignore
 import secrets
 import time
 import os
-import pickle
+import logging
 from abc import ABC, abstractmethod
 from typing import List, Any
 
@@ -18,15 +18,20 @@ class Part(ABC):
     def __init__(
         self,
         day_number: int,
+        part: int,
         test_input: List[str],
         test_answer: int,
         debug: bool = True,
     ) -> None:
         self.day_number: int = day_number
+        self.part: int = part
         self.test_input: List[str] = test_input
         self.test_answer: int = test_answer
         self.real_input: List[str] = get_input(day_number, save_input=True)
-        self.debug: bool = debug
+
+        logging_level = logging.DEBUG if debug else logging.INFO
+        logging.basicConfig(level=logging_level)
+        self.logger = logging.getLogger("Part")
 
     @staticmethod
     @abstractmethod
@@ -37,22 +42,43 @@ class Part(ABC):
         start = time.time()
         ans = self.logic(self.test_input)
         elapsed_time = time.time() - start
-        if self.debug:
-            outcome: str = "PASSED" if ans == self.test_answer else "FAILED"
-            print(
-                f"{outcome},    SB: {self.test_answer},    IS: {ans},    ET: {elapsed_time:.3f} s"
+        passed: bool = True if ans == self.test_answer else False
+        self.logger.debug(f"Part {self.part}:")
+        self.logger.debug(
+            (
+                f"{'PASSED' if passed else 'FAILED'},    "
+                f"SB: {self.test_answer},    "
+                f"IS: {ans},    ET: {elapsed_time:.3f} s"
             )
-        return True if ans == self.test_answer else False
+        )
+        return passed
 
     def submit_answer(self) -> None:
+        # only submit if tests pass
         if self.test():
-            ans: int = self.logic(self.real_input)
-            resp: bool = submit_answer(self.day_number, ans)
-            if self.debug:
-                if resp:
-                    print(f"Right answer ({ans})")
+            # check if answer needs to be submitted
+            url: str = base_url + str(self.day_number)
+            cookie = secrets.cookie
+            r = requests.get(url, cookies=cookie)
+            soup: bs4.BeautifulSoup = bs4.BeautifulSoup(r.text, "html.parser")
+            input_tag = soup.find("input")
+            if input_tag is not None:
+                requested_part = int(input_tag["value"])
+                if requested_part == self.part:
+                    start = time.time()
+                    ans: int = self.logic(self.real_input)
+                    elapsed_time = time.time() - start
+                    resp: bool = submit_answer(self.day_number, self.part, ans)
+                    self.logger.debug(
+                        (
+                            f"{'PASSED' if resp else 'FAILED'},    "
+                            f"ANS: {ans},    ET: {elapsed_time:.3f} s"
+                        )
+                    )
                 else:
-                    print(f"Wrong answer ({ans})")
+                    self.logger.debug(f"Input form requesting part {requested_part}")
+            else:
+                self.logger.debug("No input form on prompt page found")
 
 
 def get_status() -> str:
@@ -93,11 +119,13 @@ def get_prompt(day_number: int) -> str:
     return formatted_article
 
 
-def submit_answer(day_number: int, answer: int) -> bool:
+def submit_answer(day_number: int, level: int, answer: int) -> bool:
     # submit answer
+    print(day_number)
+    print(answer)
     url: str = base_url + str(day_number) + answer_suffix
     cookie = secrets.cookie
-    data = {"level": day_number, "answer": answer}
+    data = {"level": level, "answer": answer}
     r = requests.post(url, data=data, cookies=cookie)
     soup: bs4.BeautifulSoup = bs4.BeautifulSoup(r.text, "html.parser")
     article: str = soup.find("article").text
@@ -111,19 +139,20 @@ def submit_answer(day_number: int, answer: int) -> bool:
 
 def get_input(day_number: int, save_input: bool = False) -> List[str]:
     # Check to see if it's locally stored
-    input_file_name = f"./inputs/day_{day_number}_input.p"
+    input_file_name = f"./inputs/day_{day_number}_input.txt"
     input_lines: List[str] = []
     if os.path.isfile(input_file_name):
-        with open(input_file_name, "rb") as f:
-            input_lines = pickle.load(f)
+        with open(input_file_name, "r") as f:
+            input_lines = f.read().split("\n")
     else:  # gathering the input from the aoc website
         cookie = secrets.cookie
         url: str = base_url + str(day_number) + input_suffix
         r = requests.get(url, cookies=cookie)
         input_lines = r.text.split("\n")
-        if save_input:
-            with open(input_file_name, "wb") as f:
-                pickle.dump(input_lines, f)
+        if save_input:  # if the flag is set, save it to a file as plain-text
+            with open(input_file_name, "w") as f:
+                for line in input_lines:
+                    f.write(line + "\n")
     return input_lines
 
 
