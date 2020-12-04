@@ -1,9 +1,11 @@
-#!/bin/python
+#!/usr/bin/env python
 import re
 import requests
 import bs4  # type:ignore
 import secrets
 import time
+import os
+import pickle
 from abc import ABC, abstractmethod
 from typing import List, Any
 
@@ -18,13 +20,12 @@ class Part(ABC):
         day_number: int,
         test_input: List[str],
         test_answer: int,
-        real_input: List[str],
         debug: bool = True,
     ) -> None:
         self.day_number: int = day_number
         self.test_input: List[str] = test_input
         self.test_answer: int = test_answer
-        self.real_input: List[str] = real_input
+        self.real_input: List[str] = get_input(day_number, save_input=True)
         self.debug: bool = debug
 
     @staticmethod
@@ -37,7 +38,10 @@ class Part(ABC):
         ans = self.logic(self.test_input)
         elapsed_time = time.time() - start
         if self.debug:
-            print(f"SB: {self.test_answer},    IS: {ans},    ET: {elapsed_time:.2f}")
+            outcome: str = "PASSED" if ans == self.test_answer else "FAILED"
+            print(
+                f"{outcome},    SB: {self.test_answer},    IS: {ans},    ET: {elapsed_time:.3f} s"
+            )
         return True if ans == self.test_answer else False
 
     def submit_answer(self) -> None:
@@ -105,12 +109,22 @@ def submit_answer(day_number: int, answer: int) -> bool:
         raise ValueError(f"Unknown answer respone: {article}")
 
 
-def get_input(day_number: int) -> List[str]:
+def get_input(day_number: int, save_input: bool = False) -> List[str]:
     # Check to see if it's locally stored
-    cookie = secrets.cookie
-    url: str = base_url + str(day_number) + input_suffix
-    r = requests.get(url, cookies=cookie)
-    return r.text.split("\n")
+    input_file_name = f"./inputs/day_{day_number}_input.p"
+    input_lines: List[str] = []
+    if os.path.isfile(input_file_name):
+        with open(input_file_name, "rb") as f:
+            input_lines = pickle.load(f)
+    else:  # gathering the input from the aoc website
+        cookie = secrets.cookie
+        url: str = base_url + str(day_number) + input_suffix
+        r = requests.get(url, cookies=cookie)
+        input_lines = r.text.split("\n")
+        if save_input:
+            with open(input_file_name, "wb") as f:
+                pickle.dump(input_lines, f)
+    return input_lines
 
 
 def convert_str_list(input_list: List[str], output_type: Any) -> List[Any]:
