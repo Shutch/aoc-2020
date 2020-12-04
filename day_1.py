@@ -202,16 +202,31 @@ input_data = [
 ]
 
 
-def main() -> None:
+def part_1() -> None:
     input_data.sort()
     for a in input_data:
         for b in input_data:
             if (a + b) == 2020:
                 print(f"{a}, {b}")
                 print(f"{a * b}")
+                return
             else:
                 pass
 
 
+def part_2() -> None:
+    input_data.sort()
+    for a in input_data:
+        for b in input_data:
+            for c in input_data:
+                if (a + b + c) == 2020:
+                    print(f"{a}, {b}, {c}")
+                    print(f"{a * b * c}")
+                    return
+                else:
+                    pass
+
+
 if __name__ == "__main__":
-    main()
+    part_1()
+    part_2()
