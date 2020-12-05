@@ -21,12 +21,24 @@ class Part1(aoc.Part):
 class Part2(aoc.Part):
     @staticmethod
     def logic(inp):
-        pass
+        valid_passwords = 0
+        for line in inp:
+            if line != "":
+                parts = line.split()
+                first, second = parts[0].split("-")
+                letter = parts[1].strip(":")
+                pw = parts[2]
+                if (pw[int(first) - 1] == letter and pw[int(second) - 1] != letter) or (
+                    pw[int(first) - 1] != letter and pw[int(second) - 1] == letter
+                ):
+                    valid_passwords += 1
+        return valid_passwords
 
 
 if __name__ == "__main__":
     day_number = 2
     test_input = ["1-3 a: abcde", "1-3 b: cdefg", "2-9 c: ccccccccc"]
+
     part_1 = Part1(
         day_number=day_number,
         part=1,
@@ -39,6 +51,6 @@ if __name__ == "__main__":
         day_number=day_number,
         part=2,
         test_input=test_input,
-        test_answer=0,
+        test_answer=1,
     )
     part_2.submit_answer()

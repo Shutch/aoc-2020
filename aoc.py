@@ -32,6 +32,8 @@ class Part(ABC):
         logging_level = logging.DEBUG if debug else logging.INFO
         logging.basicConfig(level=logging_level)
         self.logger = logging.getLogger("Part")
+        logging.getLogger("requests").setLevel(logging.INFO)  # disable requests logger
+        logging.getLogger("urllib3").setLevel(logging.INFO)  # disable requests logger
 
     @staticmethod
     @abstractmethod
@@ -46,7 +48,7 @@ class Part(ABC):
         self.logger.debug(f"Part {self.part}:")
         self.logger.debug(
             (
-                f"{'PASSED' if passed else 'FAILED'},    "
+                f"Test: {'PASSED' if passed else 'FAILED'},    "
                 f"SB: {self.test_answer},    "
                 f"IS: {ans},    ET: {elapsed_time:.3f} s"
             )
@@ -71,12 +73,17 @@ class Part(ABC):
                     resp: bool = submit_answer(self.day_number, self.part, ans)
                     self.logger.debug(
                         (
-                            f"{'PASSED' if resp else 'FAILED'},    "
+                            f"Real: {'PASSED' if resp else 'FAILED'},    "
                             f"ANS: {ans},    ET: {elapsed_time:.3f} s"
                         )
                     )
                 else:
-                    self.logger.debug(f"Input form requesting part {requested_part}")
+                    self.logger.debug(
+                        (
+                            "No answer entered. Input form requesting part "
+                            f"{requested_part}"
+                        )
+                    )
             else:
                 self.logger.debug("No input form on prompt page found")
 
@@ -121,8 +128,6 @@ def get_prompt(day_number: int) -> str:
 
 def submit_answer(day_number: int, level: int, answer: int) -> bool:
     # submit answer
-    print(day_number)
-    print(answer)
     url: str = base_url + str(day_number) + answer_suffix
     cookie = secrets.cookie
     data = {"level": level, "answer": answer}

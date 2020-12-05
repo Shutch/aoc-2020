@@ -14,13 +14,7 @@ def main() -> None:
 @click.argument("day", type=int)
 def prompt(day: int) -> None:
     resp: str = aoc.get_prompt(day)
-    if type(resp) == str:
-        wrapper: textwrap.TextWrapper = textwrap.TextWrapper(
-            width=88, break_long_words=False, replace_whitespace=False
-        )
-        wrapped_resp: List[str] = wrapper.wrap(resp)
-        for line in wrapped_resp:
-            print(line)
+    print(resp)
 
 
 @main.command()
