@@ -134,9 +134,9 @@ def submit_answer(day_number: int, level: int, answer: int) -> bool:
     r = requests.post(url, data=data, cookies=cookie)
     soup: bs4.BeautifulSoup = bs4.BeautifulSoup(r.text, "html.parser")
     article: str = soup.find("article").text
-    if "That's the right answer!" in article:
+    if "That's the right answer" in article:
         return True
-    elif "That's not the right answer;" in article:
+    elif "That's not the right answer" in article:
         return False
     else:
         raise ValueError(f"Unknown answer respone: {article}")
@@ -148,12 +148,14 @@ def get_input(day_number: int, save_input: bool = False) -> List[str]:
     input_lines: List[str] = []
     if os.path.isfile(input_file_name):
         with open(input_file_name, "r") as f:
-            input_lines = f.read().split("\n")
+            # inputs read from a file have one blank string at the end
+            input_lines = f.read().split("\n")[:-1]
     else:  # gathering the input from the aoc website
         cookie = secrets.cookie
         url: str = base_url + str(day_number) + input_suffix
         r = requests.get(url, cookies=cookie)
-        input_lines = r.text.split("\n")
+        # inputs read from the website have one blank string at the end
+        input_lines = r.text.split("\n")[:-1]
         if save_input:  # if the flag is set, save it to a file as plain-text
             with open(input_file_name, "w") as f:
                 for line in input_lines:
