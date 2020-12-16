@@ -31,25 +31,34 @@ class Part2(aoc.Part):
                 busses[int(bus_id)] = int(time)
 
         # 0 sorts by id, 1 sorts by time from t
+        # Setting offset relative to the last bus
+        latest_bus_offset = max(list(busses.values()))
         busses = {
-            key: value
+            key: latest_bus_offset - value
             for key, value in sorted(
                 busses.items(), key=lambda item: item[0], reverse=True
             )
         }
-        main_id = max(busses)
-        main_offset = busses[main_id]
-        current_time = main_id
-        while True:
-            # cycle through busses, check modulo == 0, if not then break
-            passes = True
-            for bus_id, offset in busses.items():
-                if (current_time + (offset - main_offset)) % bus_id != 0:
-                    passes = False
-                    break
-            if passes:
-                return current_time - main_offset
-            current_time += main_id
+        logger.debug(busses)
+
+        # starting with the largest ID (largest modulus), iterate along all values that
+        # satisfy first_offset = value % first_ID. When a value is equal to
+        # second_offset = value % second_ID, now iterate first_ID * second_ID.
+        # repeat this process until all congruences are satisfied
+        # https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Search_by_sieving
+        jump_size = max(busses)
+        current_value = busses[jump_size]
+        for bus_id, offset in list(busses.items())[1:]:
+            logger.debug(
+                f"New bus: {bus_id}, offset:{offset}. Current Value: {current_value}. Jump Size: {jump_size}"
+            )
+            while (current_value % bus_id) != (offset % bus_id):
+                current_value += jump_size
+            jump_size = jump_size * bus_id
+
+        final_time = current_value - latest_bus_offset
+        logger.debug(f"Final value: {final_time}, Jump size: {jump_size}")
+        return final_time
 
 
 if __name__ == "__main__":
@@ -67,6 +76,7 @@ if __name__ == "__main__":
     )
     part_1.submit_answer()
 
+    test_input = ["939", "7,13,x,x,59,x,31,19"]
     part_2 = Part2(
         day_number=day_number,
         part=2,
