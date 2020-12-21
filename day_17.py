@@ -104,7 +104,7 @@ class Part2(aoc.Part):
                         grid[neighbor_coords] = existing_value
 
         for cycle in range(6):
-            logger.debug(f"Cycle: {cycle}{stringify_4D_grid(grid)}")
+            # logger.debug(f"Cycle: {cycle}{stringify_4D_grid(grid)}")
             next_grid = grid.copy()
             for (x, y, z, w), value in grid.items():
                 active_neighbors = sum(
