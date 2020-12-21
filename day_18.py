@@ -63,14 +63,12 @@ def compute_equation(equation):
     # no parenthesis allowed
     equation = equation.split(" ")
     # compute addition first
-    logger.debug(equation)
     while "+" in equation:
         add_index = equation.index("+")
         new_value = int(equation[add_index - 1]) + int(equation[add_index + 1])
         equation[add_index] = new_value
         del equation[add_index + 1]
         del equation[add_index - 1]
-        logger.debug(equation)
 
     while "*" in equation:
         mult_index = equation.index("*")
@@ -78,7 +76,6 @@ def compute_equation(equation):
         equation[mult_index] = new_value
         del equation[mult_index + 1]
         del equation[mult_index - 1]
-        logger.debug(equation)
     return str(equation[0])
 
 
@@ -90,7 +87,6 @@ class Part2(aoc.Part):
         for line in inp:
             equation = equation + line
             if line[-1] != " ":
-                logger.debug(equation)
                 equations.append(equation)
                 equation = ""
 
