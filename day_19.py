@@ -15,7 +15,7 @@ class Part1(aoc.Part):
         while line != "":
             rule_num, sub_rules = line.split(": ")
             if sub_rules[1].isalpha():
-                sub_rules = [sub_rules[1]]
+                sub_rules = sub_rules[1]
             else:
                 sub_rules = sub_rules.split(" | ")
                 sub_rules = [rule.split(" ") for rule in sub_rules]
@@ -37,6 +37,8 @@ class Part1(aoc.Part):
 
         # building possible valid messages
         possible_messages = []
+        find_possible_messages(rules, 0, "", possible_messages)
+        logger.debug(possible_messages)
 
         valid_messages = 0
         for message in messages:
@@ -44,6 +46,27 @@ class Part1(aoc.Part):
                 valid_messages += 1
 
         return valid_messages
+
+
+def find_possible_messages(rules, current_rule_id, starting_message, possible_messages):
+    logger.debug(f"Sub-rule: {current_rule_id}, message: {starting_message}")
+    rule = rules[current_rule_id]
+    if type(rule) == str:
+        logger.debug(f"Added {rule} to {starting_message}")
+        return starting_message + rule
+    elif type(rule) == list:
+        for sub_rule in rule:
+            logger.debug(f"New branch starting with {starting_message}")
+            current_message = starting_message
+            for next_rule_id in sub_rule:
+                current_message = find_possible_messages(
+                    rules, next_rule_id, current_message, possible_messages
+                )
+            possible_messages.append(current_message)
+            logger.debug(f"Added {current_message} to possible messages")
+    else:
+        raise ValueError(f"Unexpected rule value {rule}")
+    return possible_messages
 
 
 class Part2(aoc.Part):
@@ -55,9 +78,9 @@ class Part2(aoc.Part):
 if __name__ == "__main__":
     day_number = 19
     test_input = [
-        "0: 4 1 5",
-        "1: 2 3 | 3 2",
-        "2: 4 4 | 5 5",
+        "0: 4 3 5",
+        # "1: 2 3 | 3 2",
+        "2: 4 5",
         "3: 4 5 | 5 4",
         '4: "a"',
         '5: "b"',
