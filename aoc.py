@@ -45,8 +45,8 @@ class Part(ABC):
         ans = self.logic(self.test_input)
         elapsed_time = time.time() - start
         passed: bool = True if ans == self.test_answer else False
-        self.logger.debug(f"Part {self.part}:")
-        self.logger.debug(
+        self.logger.info(f"Part {self.part}:")
+        self.logger.info(
             (
                 f"Test: {'PASSED' if passed else 'FAILED'},    "
                 f"SB: {self.test_answer},    "
@@ -71,21 +71,21 @@ class Part(ABC):
                     ans: int = self.logic(self.real_input)
                     elapsed_time = time.time() - start
                     resp: bool = submit_answer(self.day_number, self.part, ans)
-                    self.logger.debug(
+                    self.logger.info(
                         (
                             f"Real: {'PASSED' if resp else 'FAILED'},    "
                             f"ANS: {ans},    ET: {elapsed_time:.3f} s"
                         )
                     )
                 else:
-                    self.logger.debug(
+                    self.logger.info(
                         (
                             "No answer entered. Input form requesting part "
                             f"{requested_part}"
                         )
                     )
             else:
-                self.logger.debug("No input form on prompt page found")
+                self.logger.info("No input form on prompt page found")
 
 
 def get_status() -> str:
