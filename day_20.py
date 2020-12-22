@@ -89,10 +89,11 @@ class Part1(aoc.Part):
 
 
 def print_tile(tile_id, tile):
-
     print_str = f"Tile: {tile_id}\n"
-    for y in range(10):
-        for x in range(10):
+    x_coords = [key[0] for key, value in tile.items()]
+    y_coords = [key[1] for key, value in tile.items()]
+    for y in range(min(y_coords), max(y_coords) + 1):
+        for x in range(min(x_coords), max(x_coords) + 1):
             value = tile[(x, y)]
             if value == 1:
                 print_str = print_str + "#"
@@ -136,157 +137,37 @@ class Part2(aoc.Part):
             edge = []
             for x in range(10):
                 edge.append(tiles[tile_id][(x, 0)])
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 0,
-                    "hor_flipped": False,
-                    "vert_flipped": False,
-                }
-            )
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 180,
-                    "hor_flipped": False,
-                    "vert_flipped": True,
-                }
-            )
+            edges.append({"edge": edge, "orientation": 0, "flipped": False})
             flipped_edge = edge.copy()
             flipped_edge.reverse()
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 0,
-                    "hor_flipped": True,
-                    "vert_flipped": False,
-                }
-            )
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 180,
-                    "hor_flipped": True,
-                    "vert_flipped": True,
-                }
-            )
+            edges.append({"edge": flipped_edge, "orientation": 0, "flipped": True})
 
             # bottom edge
             edge = []
             for x in range(9, -1, -1):
                 edge.append(tiles[tile_id][(x, 9)])
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 180,
-                    "hor_flipped": False,
-                    "vert_flipped": False,
-                }
-            )
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 0,
-                    "hor_flipped": False,
-                    "vert_flipped": True,
-                }
-            )
+            edges.append({"edge": edge, "orientation": 180, "flipped": False})
             flipped_edge = edge.copy()
             flipped_edge.reverse()
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 180,
-                    "hor_flipped": True,
-                    "vert_flipped": False,
-                }
-            )
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 0,
-                    "hor_flipped": True,
-                    "vert_flipped": True,
-                }
-            )
+            edges.append({"edge": flipped_edge, "orientation": 180, "flipped": True})
 
             # right edge
             edge = []
             for y in range(10):
                 edge.append(tiles[tile_id][(9, y)])
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 90,
-                    "hor_flipped": False,
-                    "vert_flipped": False,
-                }
-            )
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 270,
-                    "hor_flipped": True,
-                    "vert_flipped": False,
-                }
-            )
+            edges.append({"edge": edge, "orientation": 90, "flipped": False})
             flipped_edge = edge.copy()
             flipped_edge.reverse()
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 90,
-                    "hor_flipped": False,
-                    "vert_flipped": True,
-                }
-            )
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 270,
-                    "hor_flipped": True,
-                    "vert_flipped": True,
-                }
-            )
+            edges.append({"edge": flipped_edge, "orientation": 270, "flipped": True})
 
             # left edge
             edge = []
             for y in range(9, -1, -1):
                 edge.append(tiles[tile_id][(0, y)])
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 270,
-                    "hor_flipped": False,
-                    "vert_flipped": False,
-                }
-            )
-            edges.append(
-                {
-                    "edge": edge,
-                    "orientation": 90,
-                    "hor_flipped": True,
-                    "vert_flipped": False,
-                }
-            )
+            edges.append({"edge": edge, "orientation": 270, "flipped": False})
             flipped_edge = edge.copy()
             flipped_edge.reverse()
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 270,
-                    "hor_flipped": False,
-                    "vert_flipped": True,
-                }
-            )
-            edges.append(
-                {
-                    "edge": flipped_edge,
-                    "orientation": 90,
-                    "hor_flipped": True,
-                    "vert_flipped": True,
-                }
-            )
+            edges.append({"edge": flipped_edge, "orientation": 90, "flipped": True})
 
             tile_edges[tile_id] = edges
 
@@ -299,30 +180,26 @@ class Part2(aoc.Part):
         current_tile = {
             "coords": (0, 0),
             "orientation": 0,  # 0 is N, 90 is E, 180 is S
-            "hor_flipped": False,
-            "vert_flipped": False,
+            "flipped": False,
         }
         tile_locations[starting_tile_id] = current_tile
         while len(unset_tile_ids) > 0:
             for index in range(len(set_tile_ids) - 1, -1, -1):
                 current_tile_id = set_tile_ids[index]
                 current_tile = tile_locations[current_tile_id]
-                logging.debug(f"Now matching {current_tile_id}")
+                # logging.debug(f"Now matching {current_tile_id}")
                 for edge in tile_edges[current_tile_id]:
-                    if (
-                        edge["hor_flipped"] == current_tile["hor_flipped"]
-                        and edge["vert_flipped"] == current_tile["vert_flipped"]
-                    ):
+                    if edge["flipped"] == current_tile["flipped"]:
                         for matching_tile_id in unset_tile_ids:
                             for matching_edge in tile_edges[matching_tile_id]:
                                 if edge["edge"] == matching_edge["edge"]:
-                                    logger.debug(
-                                        f"\nmatch {current_tile_id} ({edge})\n with {matching_tile_id} ({matching_edge})"
-                                    )
+                                    # logger.debug(
+                                    #     f"\nmatch {current_tile_id} ({edge})\n with {matching_tile_id} ({matching_edge})"
+                                    # )
 
                                     orientation = (
                                         edge["orientation"]
-                                        - matching_edge["orientation"]
+                                        + matching_edge["orientation"]
                                         + current_tile["orientation"]
                                         + 180
                                     ) % 360
@@ -333,7 +210,7 @@ class Part2(aoc.Part):
                                     ) % 360 == 0:
                                         coords = (
                                             current_tile["coords"][0],
-                                            current_tile["coords"][1] + 1,
+                                            current_tile["coords"][1] - 1,
                                         )
                                     elif (
                                         edge["orientation"]
@@ -349,7 +226,7 @@ class Part2(aoc.Part):
                                     ) % 360 == 180:
                                         coords = (
                                             current_tile["coords"][0],
-                                            current_tile["coords"][1] - 1,
+                                            current_tile["coords"][1] + 1,
                                         )
                                     elif (
                                         edge["orientation"]
@@ -362,31 +239,109 @@ class Part2(aoc.Part):
                                     else:
                                         raise ValueError(current_tile["orientation"])
 
-                                    hor_flipped = matching_edge["hor_flipped"]
-                                    vert_flipped = matching_edge["vert_flipped"]
+                                    flipped = not matching_edge["flipped"]
                                     tile_locations[matching_tile_id] = {
                                         "coords": coords,
                                         "orientation": orientation,
-                                        "hor_flipped": hor_flipped,
-                                        "vert_flipped": vert_flipped,
+                                        "flipped": flipped,
                                     }
-                                    logger.debug(set_tile_ids)
-                                    logger.debug(unset_tile_ids)
-                                    logger.debug(matching_tile_id)
                                     set_tile_ids.append(matching_tile_id)
                                     unset_tile_ids.remove(matching_tile_id)
-                                    pprint.pprint(tile_locations)
-                                    break
                 del set_tile_ids[index]
-                logger.debug(set_tile_ids)
-                logger.debug(unset_tile_ids)
-        logger.debug(unset_tile_ids)
 
-        sea_monster = [
+        # Removing edges and building grid
+        full_grid = {}
+        mult = 8
+        for tile_id, tile_info in tile_locations.items():
+            tile = tiles[tile_id]
+            if tile_info["flipped"]:
+                tile = flip_tile_horizontal(tile)
+            tile = rotate_tile_CW(tile, rotations=tile_info["orientation"] // 90)
+            x_coords = [key[0] for key, value in tile.items()]
+            y_coords = [key[1] for key, value in tile.items()]
+            for y in range(min(y_coords) + 1, max(y_coords)):
+                for x in range(min(x_coords) + 1, max(x_coords)):
+                    x_val = x + tile_locations[tile_id]["coords"][0] * mult
+                    y_val = y + tile_locations[tile_id]["coords"][1] * mult
+                    full_grid[(x_val, y_val)] = tile[(x, y)]
+
+        # normalizing grid to (0, 0) top left corner so rotations actually work
+        x_shift = min([key[0] for key, value in full_grid.items()])
+        y_shift = min([key[1] for key, value in full_grid.items()])
+        full_grid = {
+            (x - x_shift, y - y_shift): value for (x, y), value in full_grid.items()
+        }
+
+        # converting sea monster to dictionary coords
+        # only need the # symbols
+        sea_monster_str = [
             "                  # ",
             "#    ##    ##    ###",
             " #  #  #  #  #  #   ",
         ]
+        sea_monster = {}
+        for y, line in enumerate(sea_monster_str):
+            for x, char in enumerate(line):
+                if char == "#":
+                    sea_monster[(x, y)] = 1
+
+        # checking each orientation for sea monsters
+        x_size = max([key[0] for key, value in full_grid.items()])
+        y_size = max([key[1] for key, value in full_grid.items()])
+        total_sea_monsters = 0
+        for i in range(2):
+            for j in range(4):
+                for y in range(y_size + 1):
+                    for x in range(x_size + 1):
+                        monster = True
+                        for monster_x, monster_y in sea_monster.keys():
+                            value = full_grid.get((x + monster_x, y + monster_y), 0)
+                            if value == 0:
+                                monster = False
+                        if monster:
+                            total_sea_monsters += 1
+                            logger.debug(
+                                f"Found a sea monster in {i}, {j}. Total {total_sea_monsters}"
+                            )
+
+                # rotating for next round
+                full_grid = rotate_tile_CW(full_grid)
+            # flipping for next round
+            full_grid = flip_tile_horizontal(full_grid)
+
+        waves = sum(full_grid.values()) - total_sea_monsters * sum(sea_monster.values())
+        return waves
+
+
+def rotate_tile_CW(tile, rotations=1):
+    rot_tile = tile.copy()
+    temp_tile = tile.copy()
+    for i in range(rotations):
+        x_coords = [key[0] for key, value in temp_tile.items()]
+        y_coords = [key[1] for key, value in temp_tile.items()]
+        min_x = min(x_coords)
+        max_x = max(x_coords)
+        min_y = min(y_coords)
+        max_y = max(y_coords)
+        for y in range(min_y, max_y + 1):
+            for x in range(min_x, max_x + 1):
+                rot_tile[(max_y - y, x)] = temp_tile[(x, y)]
+        temp_tile = rot_tile.copy()
+    return rot_tile
+
+
+def flip_tile_horizontal(tile):
+    rot_tile = {}
+    x_coords = [key[0] for key, value in tile.items()]
+    y_coords = [key[1] for key, value in tile.items()]
+    min_x = min(x_coords)
+    max_x = max(x_coords)
+    min_y = min(y_coords)
+    max_y = max(y_coords)
+    for y in range(min_y, max_y + 1):
+        for x in range(min_x, max_x + 1):
+            rot_tile[(max_x - x, y)] = tile[(x, y)]
+    return rot_tile
 
 
 if __name__ == "__main__":

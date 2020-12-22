@@ -52,7 +52,7 @@ def find_possible_messages(rules, current_rule_id, starting_message, possible_me
     logger.debug(f"Sub-rule: {current_rule_id}, message: {starting_message}")
     rule = rules[current_rule_id]
     if type(rule) == str:
-        logger.debug(f"Added {rule} to {starting_message}")
+        logger.debug(f"Returning {starting_message + rule}")
         return starting_message + rule
     elif type(rule) == list:
         for sub_rule in rule:
@@ -62,10 +62,12 @@ def find_possible_messages(rules, current_rule_id, starting_message, possible_me
                 current_message = find_possible_messages(
                     rules, next_rule_id, current_message, possible_messages
                 )
-            possible_messages.append(current_message)
-            logger.debug(f"Added {current_message} to possible messages")
+                logger.debug(
+                    f"Rule {current_rule_id}, sub rule {sub_rule}, sequence {next_rule_id}, Current message: {current_message}"
+                )
     else:
         raise ValueError(f"Unexpected rule value {rule}")
+    logger.debug(f"Exiting with message {current_message}")
     return possible_messages
 
 
@@ -78,12 +80,25 @@ class Part2(aoc.Part):
 if __name__ == "__main__":
     day_number = 19
     test_input = [
-        "0: 4 3 5",
-        # "1: 2 3 | 3 2",
-        "2: 4 5",
+        "0: 4 1 5",
+        "1: 2 3 | 3 2",
+        "2: 4 4 | 5 5",
         "3: 4 5 | 5 4",
         '4: "a"',
         '5: "b"',
+        "",
+        "ababbb",
+        "bababa",
+        "abbbab",
+        "aaabbb",
+        "aaaabbb",
+    ]
+
+    test_input = [
+        "0: 1 2",
+        '1: "a"',
+        "2: 1 3 | 3 1",
+        '3: "b"',
         "",
         "ababbb",
         "bababa",
