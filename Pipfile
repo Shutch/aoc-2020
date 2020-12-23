@@ -11,6 +11,7 @@ requests = "*"
 pre-commit = "*"
 click = "*"
 flake8 = "*"
+snakeviz = "*"
 
 [dev-packages]
 

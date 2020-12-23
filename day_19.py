@@ -2,6 +2,7 @@
 # mypy: ignore-errors
 import aoc
 import logging
+from copy import deepcopy
 
 logger = logging.getLogger("Part")
 
@@ -15,7 +16,7 @@ class Part1(aoc.Part):
         while line != "":
             rule_num, sub_rules = line.split(": ")
             if sub_rules[1].isalpha():
-                sub_rules = sub_rules[1]
+                sub_rules = [sub_rules[1]]
             else:
                 sub_rules = sub_rules.split(" | ")
                 sub_rules = [rule.split(" ") for rule in sub_rules]
@@ -35,40 +36,41 @@ class Part1(aoc.Part):
         logger.debug(rules)
         logger.debug(messages)
 
-        # building possible valid messages
         possible_messages = []
-        find_possible_messages(rules, 0, "", possible_messages)
+        message = depth_first_search(rules, 0, "", possible_messages)
+        logger.debug(message)
         logger.debug(possible_messages)
 
-        valid_messages = 0
-        for message in messages:
-            if message in possible_messages:
-                valid_messages += 1
+        # building valid messages from 0
+        # valid_messages = 0
+        # for message in messages:
+        #     if message in possible_messages:
+        #         valid_messages += 1
 
-        return valid_messages
+        # return valid_messages
 
 
-def find_possible_messages(rules, current_rule_id, starting_message, possible_messages):
-    logger.debug(f"Sub-rule: {current_rule_id}, message: {starting_message}")
-    rule = rules[current_rule_id]
-    if type(rule) == str:
-        logger.debug(f"Returning {starting_message + rule}")
-        return starting_message + rule
-    elif type(rule) == list:
-        for sub_rule in rule:
-            logger.debug(f"New branch starting with {starting_message}")
-            current_message = starting_message
-            for next_rule_id in sub_rule:
-                current_message = find_possible_messages(
-                    rules, next_rule_id, current_message, possible_messages
+def depth_first_search(rules, rule_index, starting_message, possible_messages):
+    sub_rules = rules[rule_index]
+    for sub_rule_index, sub_rule in enumerate(sub_rules):
+        current_message = starting_message
+        if type(sub_rule) == str:
+            logger.debug(f"Current message: {starting_message} + {sub_rule}")
+            return starting_message + sub_rule
+        else:
+            for step_index, step in enumerate(sub_rule):
+                current_message = depth_first_search(
+                    rules, step, current_message, possible_messages
                 )
                 logger.debug(
-                    f"Rule {current_rule_id}, sub rule {sub_rule}, sequence {next_rule_id}, Current message: {current_message}"
+                    f"Rule {rule_index}, Sub-rule {sub_rule_index}, Step {step_index} complete: {step} {current_message}"
                 )
-    else:
-        raise ValueError(f"Unexpected rule value {rule}")
-    logger.debug(f"Exiting with message {current_message}")
-    return possible_messages
+        logger.debug(
+            f"Rule {rule_index}, Sub-rule {sub_rule_index} complete: {sub_rule} {current_message}"
+        )
+        possible_messages.append(current_message)
+    logger.debug(f"Rule {rule_index} complete: {current_message}")
+    return current_message
 
 
 class Part2(aoc.Part):
