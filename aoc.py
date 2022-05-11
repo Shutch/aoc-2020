@@ -141,6 +141,16 @@ def submit_answer(day_number: int, level: int, answer: int) -> bool:
     else:
         raise ValueError(f"Unknown answer respone: {article}")
 
+def test_post(day_number: int, level: int, answer: int) -> bool:
+    # submit answer
+    url: str = base_url + str(day_number) + answer_suffix
+    url: str = "https://httpbin.org/post"
+    cookie = secrets.cookie
+    data = {"level": level, "answer": answer}
+    r = requests.post(url, data=data, cookies=cookie)
+    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(r.text, "html.parser")
+    print(soup.text)
+
 
 def get_input(day_number: int, save_input: bool = False) -> List[str]:
     # Check to see if it's locally stored
